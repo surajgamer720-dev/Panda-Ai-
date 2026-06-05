@@ -1,0 +1,207 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Soft Beige Theme - Light Mode */
+    --background: 24 26% 87%;
+    --foreground: 0 0% 10%;
+    --card: 24 33% 93%;
+    --card-foreground: 0 0% 10%;
+    --popover: 24 33% 93%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 24 26% 87%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 24 20% 82%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 4 76% 82%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 24 22% 80%;
+    --input: 24 22% 80%;
+    --ring: 4 76% 82%;
+    --radius: 0.75rem;
+
+    --chat-user: 0 0% 0%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-ai: 24 33% 93%;
+    --chat-ai-foreground: 0 0% 10%;
+    --glass: 24 33% 93% / 0.7;
+    --glass-border: 24 22% 80% / 0.5;
+
+    --sidebar-background: 24 33% 93%;
+    --sidebar-foreground: 0 0% 15%;
+    --sidebar-primary: 0 0% 0%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 24 26% 87%;
+    --sidebar-accent-foreground: 0 0% 15%;
+    --sidebar-border: 24 22% 80%;
+    --sidebar-ring: 4 76% 82%;
+  }
+
+  .dark {
+    /* Soft Beige Theme - Dark Mode */
+    --background: 222 47% 11%;
+    --foreground: 215 28% 91%;
+    --card: 217 33% 17%;
+    --card-foreground: 215 28% 91%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 215 28% 91%;
+    --primary: 198 93% 60%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 30% 20%;
+    --secondary-foreground: 215 28% 88%;
+    --muted: 217 30% 20%;
+    --muted-foreground: 215 15% 55%;
+    --accent: 4 76% 82%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 217 25% 22%;
+    --input: 217 25% 22%;
+    --ring: 198 93% 60%;
+
+    --chat-user: 198 93% 55%;
+    --chat-user-foreground: 222 47% 11%;
+    --chat-ai: 217 30% 20%;
+    --chat-ai-foreground: 215 28% 91%;
+    --glass: 217 33% 17% / 0.8;
+    --glass-border: 217 25% 25% / 0.5;
+
+    --sidebar-background: 222 47% 10%;
+    --sidebar-foreground: 215 20% 85%;
+    --sidebar-primary: 198 93% 60%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 30% 15%;
+    --sidebar-accent-foreground: 215 20% 85%;
+    --sidebar-border: 217 25% 18%;
+    --sidebar-ring: 198 93% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    height: 100%;
+  }
+  html {
+    overflow: hidden;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Poppins', sans-serif;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  @media (max-width: 767px) {
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .glass-card {
+    @apply bg-card/70 backdrop-blur-xl border border-border/50 rounded-xl;
+  }
+
+  .glass-surface {
+    @apply bg-card/50 backdrop-blur-md border border-border/30;
+  }
+
+  .chat-bubble-user {
+    @apply bg-[hsl(var(--chat-user))] text-[hsl(var(--chat-user-foreground))] rounded-2xl px-3.5 py-2;
+  }
+
+  .chat-bubble-ai {
+    @apply text-[hsl(var(--chat-ai-foreground))];
+  }
+}
+
+@keyframes typing-dot {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-4px); }
+}
+
+.typing-dot:nth-child(1) { animation: typing-dot 1.4s ease-in-out infinite 0s; }
+.typing-dot:nth-child(2) { animation: typing-dot 1.4s ease-in-out infinite 0.2s; }
+.typing-dot:nth-child(3) { animation: typing-dot 1.4s ease-in-out infinite 0.4s; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(var(--muted-foreground) / 0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); }
+
+/* Markdown in chat */
+.chat-markdown pre {
+  @apply rounded-lg my-2 overflow-x-auto;
+  -webkit-overflow-scrolling: touch;
+}
+.chat-markdown code {
+  @apply text-sm;
+}
+.chat-markdown p {
+  @apply mb-2 last:mb-0 leading-relaxed;
+}
+.chat-markdown ul, .chat-markdown ol {
+  @apply ml-5 mb-2 list-disc;
+}
+.chat-markdown ol { @apply list-decimal; }
+.chat-markdown li {
+  @apply mb-1;
+}
+.chat-markdown h1, .chat-markdown h2, .chat-markdown h3 {
+  @apply font-semibold mt-3 mb-1;
+}
+.chat-markdown .table-wrap {
+  @apply w-full overflow-x-auto my-2 rounded-md border border-border;
+  -webkit-overflow-scrolling: touch;
+}
+.chat-markdown table {
+  @apply border-collapse text-sm min-w-full;
+}
+.chat-markdown th, .chat-markdown td {
+  @apply border border-border px-3 py-1.5 whitespace-nowrap;
+}
+.chat-markdown blockquote {
+  @apply border-l-4 border-accent/40 pl-3 italic my-2;
+}
+
+/* KaTeX – allow long formulas to scroll horizontally instead of overflowing */
+.chat-markdown .katex-display {
+  @apply my-3 overflow-x-auto overflow-y-hidden py-1;
+  -webkit-overflow-scrolling: touch;
+}
+.chat-markdown .katex-display > .katex {
+  @apply text-left;
+  white-space: nowrap;
+}
+.chat-markdown .katex { font-size: 1.05em; }
