@@ -29,6 +29,47 @@ function prettifyModelName(id: string): string {
   return id.replace(/^models\//, "").replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 }
 
+const GEMINI_MODEL_PRIORITY = [
+  "gemini-3.5-flash",
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-2.5-pro",
+  "gemini-3-flash-preview",
+  "gemini-3.1-flash-lite",
+  "gemini-2.5-flash-lite-preview-09-2025",
+];
+
+function isChatFriendlyGeminiModel(id: string, methods: string[] = []): boolean {
+  if (!methods.includes("generateContent")) return false;
+  if (!/^gemini-/i.test(id)) return false;
+
+  // Hide models that are not a normal text/chat target for this app.
+  if (/embedding|aqa|imagen|veo|lyria|banana|image|tts|audio|live|robotics|deep-research|antigravity|computer-use/i.test(id)) {
+    return false;
+  }
+
+  // Older Gemini 2.0 text models were shut down; keep users on current models.
+  if (/^gemini-2\.0-/i.test(id)) return false;
+
+  return true;
+}
+
+function sortGeminiModels(a: ModelOption, b: ModelOption): number {
+  const ai = GEMINI_MODEL_PRIORITY.indexOf(a.modelId);
+  const bi = GEMINI_MODEL_PRIORITY.indexOf(b.modelId);
+  if (ai !== -1 || bi !== -1) {
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  }
+
+  // Prefer stable models over preview aliases, then sort newest-looking names first.
+  const ap = /preview|experimental/i.test(a.modelId) ? 1 : 0;
+  const bp = /preview|experimental/i.test(b.modelId) ? 1 : 0;
+  if (ap !== bp) return ap - bp;
+  return b.modelId.localeCompare(a.modelId, undefined, { numeric: true });
+}
+
 export async function fetchCerebrasModels(apiKey: string): Promise<ModelOption[]> {
   const res = await fetch(CEREBRAS_MODELS_URL, { headers: { Authorization: `Bearer ${apiKey}` } });
   if (!res.ok) throw new Error(`Cerebras models (${res.status})`);
@@ -48,8 +89,6 @@ export async function fetchGeminiModels(apiKey: string): Promise<ModelOption[]> 
   const data = await res.json();
   const models = (data.models || []) as Array<{ name: string; displayName?: string; supportedGenerationMethods?: string[]; inputTokenLimit?: number }>;
   return models
-    .filter(m => m.supportedGenerationMethods?.includes("generateContent"))
-    .filter(m => /gemini/i.test(m.name) && !/embedding|aqa|image-generation|tts|native-audio/i.test(m.name))
     .map(m => {
       const id = m.name.replace(/^models\//, "");
       return {
@@ -58,9 +97,12 @@ export async function fetchGeminiModels(apiKey: string): Promise<ModelOption[]> 
         name: m.displayName || prettifyModelName(id),
         provider: "gemini" as const,
         supportsVision: true,
+        supportedGenerationMethods: m.supportedGenerationMethods || [],
       };
     })
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .filter(m => isChatFriendlyGeminiModel(m.modelId, (m as ModelOption & { supportedGenerationMethods: string[] }).supportedGenerationMethods))
+    .map(({ supportedGenerationMethods, ...model }) => model)
+    .sort(sortGeminiModels);
 }
 
 interface StreamArgs {

@@ -92,16 +92,15 @@ export function generateTitle(messages: ChatMessage[]): string {
 
 // Fallback models, used until live /models endpoint responds.
 export const FREE_MODELS: ModelOption[] = [
-  // Cerebras (text-only, fast)
-  { id: "cerebras:llama-3.3-70b", modelId: "llama-3.3-70b", name: "Llama 3.3 70B", provider: "cerebras" },
-  { id: "cerebras:llama-4-scout-17b-16e-instruct", modelId: "llama-4-scout-17b-16e-instruct", name: "Llama 4 Scout 17B", provider: "cerebras" },
-  { id: "cerebras:llama-4-maverick-17b-128e-instruct", modelId: "llama-4-maverick-17b-128e-instruct", name: "Llama 4 Maverick 17B", provider: "cerebras" },
-  { id: "cerebras:qwen-3-32b", modelId: "qwen-3-32b", name: "Qwen 3 32B", provider: "cerebras" },
-  { id: "cerebras:qwen-3-235b-a22b-instruct-2507", modelId: "qwen-3-235b-a22b-instruct-2507", name: "Qwen 3 235B Instruct", provider: "cerebras" },
-  { id: "cerebras:qwen-3-coder-480b", modelId: "qwen-3-coder-480b", name: "Qwen 3 Coder 480B", provider: "cerebras" },
+  // Cerebras public endpoints (text-only, fast)
   { id: "cerebras:gpt-oss-120b", modelId: "gpt-oss-120b", name: "GPT-OSS 120B", provider: "cerebras" },
-  // Gemini (vision + documents)
+  { id: "cerebras:zai-glm-4.7", modelId: "zai-glm-4.7", name: "Z.ai GLM 4.7", provider: "cerebras" },
+  // Gemini free-tier friendly chat models (vision + documents where supported)
+  { id: "gemini:gemini-3.5-flash", modelId: "gemini-3.5-flash", name: "Gemini 3.5 Flash", provider: "gemini", supportsVision: true },
+  { id: "gemini:gemini-3-flash-preview", modelId: "gemini-3-flash-preview", name: "Gemini 3 Flash Preview", provider: "gemini", supportsVision: true },
+  { id: "gemini:gemini-3.1-flash-lite", modelId: "gemini-3.1-flash-lite", name: "Gemini 3.1 Flash-Lite", provider: "gemini", supportsVision: true },
   { id: "gemini:gemini-2.5-flash", modelId: "gemini-2.5-flash", name: "Gemini 2.5 Flash", provider: "gemini", supportsVision: true },
+  { id: "gemini:gemini-2.5-flash-lite", modelId: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash-Lite", provider: "gemini", supportsVision: true },
+  { id: "gemini:gemini-2.5-flash-lite-preview-09-2025", modelId: "gemini-2.5-flash-lite-preview-09-2025", name: "Gemini 2.5 Flash-Lite Preview", provider: "gemini", supportsVision: true },
   { id: "gemini:gemini-2.5-pro", modelId: "gemini-2.5-pro", name: "Gemini 2.5 Pro", provider: "gemini", supportsVision: true },
-  { id: "gemini:gemini-2.0-flash", modelId: "gemini-2.0-flash", name: "Gemini 2.0 Flash", provider: "gemini", supportsVision: true },
 ];
