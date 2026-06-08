@@ -103,12 +103,24 @@
     font-family: 'Poppins', sans-serif;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
+    user-select: none;
   }
   button,
   input,
   textarea,
   select {
     font: inherit;
+  }
+  input,
+  textarea,
+  .selectable-message,
+  .chat-markdown,
+  .chat-markdown * {
+    user-select: text;
+  }
+  button,
+  .message-actions {
+    user-select: none;
   }
   @media (max-width: 767px) {
     input,
@@ -137,7 +149,7 @@
   }
 
   .chat-bubble-user {
-    @apply bg-[hsl(var(--chat-user))] text-[hsl(var(--chat-user-foreground))] rounded-2xl px-3.5 py-2;
+    @apply bg-[hsl(var(--chat-user))] text-[hsl(var(--chat-user-foreground))] rounded-xl px-3.5 py-2.5;
   }
 
   .chat-bubble-ai {
@@ -162,24 +174,26 @@
 
 /* Markdown in chat */
 .chat-markdown pre {
-  @apply rounded-lg my-2 overflow-x-auto;
+  @apply rounded-lg my-3 overflow-x-auto;
   -webkit-overflow-scrolling: touch;
 }
 .chat-markdown code {
   @apply text-sm;
+  overflow-wrap: anywhere;
 }
 .chat-markdown p {
-  @apply mb-2 last:mb-0 leading-relaxed;
+  @apply mb-3 last:mb-0 leading-7;
+  overflow-wrap: anywhere;
 }
 .chat-markdown ul, .chat-markdown ol {
-  @apply ml-5 mb-2 list-disc;
+  @apply ml-5 mb-3 list-disc;
 }
 .chat-markdown ol { @apply list-decimal; }
 .chat-markdown li {
-  @apply mb-1;
+  @apply mb-1.5 leading-7;
 }
 .chat-markdown h1, .chat-markdown h2, .chat-markdown h3 {
-  @apply font-semibold mt-3 mb-1;
+  @apply font-semibold mt-4 mb-2 leading-snug;
 }
 .chat-markdown .table-wrap {
   @apply w-full overflow-x-auto my-2 rounded-md border border-border;
@@ -192,7 +206,7 @@
   @apply border border-border px-3 py-1.5 whitespace-nowrap;
 }
 .chat-markdown blockquote {
-  @apply border-l-4 border-accent/40 pl-3 italic my-2;
+  @apply border-l-4 border-accent/40 pl-3 italic my-3;
 }
 
 /* KaTeX – allow long formulas to scroll horizontally instead of overflowing */

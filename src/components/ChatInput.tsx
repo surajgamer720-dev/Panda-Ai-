@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Send, Paperclip, X, Camera, Monitor } from "lucide-react";
+import { Send, Paperclip, X, Camera, Monitor, Square } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
@@ -8,9 +8,11 @@ import { toast } from "sonner";
 interface ChatInputProps {
   onSend: (content: string, images?: string[]) => void;
   disabled: boolean;
+  isBusy?: boolean;
+  onStop?: () => void;
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, disabled, isBusy, onStop }: ChatInputProps) {
   const [input, setInput] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -182,12 +184,13 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
             rows={1}
           />
           <Button
-            onClick={handleSend}
-            disabled={disabled || (!input.trim() && images.length === 0)}
+            onClick={isBusy ? onStop : handleSend}
+            disabled={isBusy ? false : disabled || (!input.trim() && images.length === 0)}
             size="icon"
             className="h-9 w-9 md:h-10 md:w-10 shrink-0"
+            title={isBusy ? "Stop response" : "Send message"}
           >
-            <Send className="h-4 w-4" />
+            {isBusy ? <Square className="h-4 w-4 fill-current" /> : <Send className="h-4 w-4" />}
           </Button>
         </div>
       </div>

@@ -189,38 +189,8 @@ export default function Index() {
     }
   }, [handleNewChat, chats]);
 
-  const handleSend = useCallback(async (content: string, images?: string[]) => {
-    if (!cerebrasKey && !geminiKey) { setShowApiModal(true); return; }
+  const streamAssistantResponse = useCallback(async (chatId: string, messagesForApi: ChatMessage[]) => {
     if (!selectedModel) { toast.error("Please select a model from the dropdown."); return; }
-
-    let chatId = activeChatId;
-    let currentChats = chats;
-
-    if (!chatId) {
-      const chat = createChat();
-      currentChats = [chat, ...chats];
-      chatId = chat.id;
-      setChats(currentChats);
-      setActiveChatId(chatId);
-    }
-
-    const userMsg: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content,
-      timestamp: Date.now(),
-      images,
-    };
-
-    const updatedChats = currentChats.map(c =>
-      c.id === chatId
-        ? { ...c, messages: [...c.messages, userMsg], updatedAt: Date.now(), title: c.messages.length === 0 ? content.slice(0, 40) || "New Chat" : c.title }
-        : c
-    );
-    setChats(updatedChats);
-
-    const chat = updatedChats.find(c => c.id === chatId)!;
-    const messagesForApi = chat.messages;
 
     setShowTyping(true);
     setIsStreaming(false);
@@ -265,7 +235,74 @@ export default function Index() {
         toast.error(err);
       },
     });
-  }, [cerebrasKey, geminiKey, activeChatId, chats, selectedModel]);
+  }, [cerebrasKey, geminiKey, selectedModel]);
+
+  const handleSend = useCallback(async (content: string, images?: string[]) => {
+    if (!cerebrasKey && !geminiKey) { setShowApiModal(true); return; }
+    if (!selectedModel) { toast.error("Please select a model from the dropdown."); return; }
+
+    let chatId = activeChatId;
+    let currentChats = chats;
+
+    if (!chatId) {
+      const chat = createChat();
+      currentChats = [chat, ...chats];
+      chatId = chat.id;
+      setChats(currentChats);
+      setActiveChatId(chatId);
+    }
+
+    const userMsg: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content,
+      timestamp: Date.now(),
+      images,
+    };
+
+    const updatedChats = currentChats.map(c =>
+      c.id === chatId
+        ? { ...c, messages: [...c.messages, userMsg], updatedAt: Date.now(), title: c.messages.length === 0 ? content.slice(0, 40) || "New Chat" : c.title }
+        : c
+    );
+    setChats(updatedChats);
+
+    const chat = updatedChats.find(c => c.id === chatId)!;
+    await streamAssistantResponse(chatId, chat.messages);
+  }, [cerebrasKey, geminiKey, activeChatId, chats, selectedModel, streamAssistantResponse]);
+
+  const handleStop = useCallback(() => {
+    abortController?.abort();
+    setAbortController(null);
+    setIsStreaming(false);
+    setShowTyping(false);
+    toast("Response stopped.");
+  }, [abortController]);
+
+  const handleRegenerate = useCallback(async () => {
+    if (!activeChat || isStreaming || showTyping) return;
+    if (!cerebrasKey && !geminiKey) { setShowApiModal(true); return; }
+
+    const baseMessages = [...activeChat.messages];
+    while (baseMessages.length > 0 && baseMessages[baseMessages.length - 1].role === "assistant") {
+      baseMessages.pop();
+    }
+
+    if (!baseMessages.some(m => m.role === "user")) {
+      toast("Send a message first, then regenerate.");
+      return;
+    }
+
+    setChats(prev => prev.map(c =>
+      c.id === activeChat.id
+        ? { ...c, messages: baseMessages, updatedAt: Date.now() }
+        : c
+    ));
+
+    await streamAssistantResponse(activeChat.id, baseMessages);
+  }, [activeChat, cerebrasKey, geminiKey, isStreaming, showTyping, streamAssistantResponse]);
+
+  const isBusy = isStreaming || showTyping;
 
   if (view === "welcome") {
     return (
@@ -318,8 +355,9 @@ export default function Index() {
           messages={activeChat?.messages || []}
           isStreaming={isStreaming}
           showTyping={showTyping}
+          onRegenerate={handleRegenerate}
         />
-        <ChatInput onSend={handleSend} disabled={isStreaming || showTyping} />
+        <ChatInput onSend={handleSend} disabled={isBusy} isBusy={isBusy} onStop={handleStop} />
       </div>
 
       <ApiKeyModal open={showApiModal} onSave={handleSaveApiKeys} initialCerebras={cerebrasKey} initialGemini={geminiKey} />

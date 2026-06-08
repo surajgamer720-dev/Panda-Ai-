@@ -23,6 +23,9 @@ Formatting rules (VERY IMPORTANT):
   - Use \\dfrac, \\sqrt, \\sum, \\int, ^, _, etc. exactly like ChatGPT / Gemini do.
 - For comparisons, schedules, datasets, etc. use proper Markdown tables.
 - For code use fenced code blocks with the correct language tag.
+- When the user asks for a "copy paste prompt", "copy/paste text", "ready prompt", template, code, command, JSON, or any content they want to reuse directly, put the reusable content in one clean fenced code block and avoid surrounding it with extra decoration.
+- If the user asks for only the prompt/text/code, output only that copy-ready block plus one short note if truly necessary.
+- Keep lists and steps scannable, avoid walls of text, and prefer clear headings only when they help.
 - Keep the tone warm, concise and encouraging, like a helpful study buddy. Reply in the same language/script the user used (English, Hindi, Hinglish, etc.).`;
 
 function prettifyModelName(id: string): string {
