@@ -279,29 +279,6 @@ export default function Index() {
     toast("Response stopped.");
   }, [abortController]);
 
-  const handleRegenerate = useCallback(async () => {
-    if (!activeChat || isStreaming || showTyping) return;
-    if (!cerebrasKey && !geminiKey) { setShowApiModal(true); return; }
-
-    const baseMessages = [...activeChat.messages];
-    while (baseMessages.length > 0 && baseMessages[baseMessages.length - 1].role === "assistant") {
-      baseMessages.pop();
-    }
-
-    if (!baseMessages.some(m => m.role === "user")) {
-      toast("Send a message first, then regenerate.");
-      return;
-    }
-
-    setChats(prev => prev.map(c =>
-      c.id === activeChat.id
-        ? { ...c, messages: baseMessages, updatedAt: Date.now() }
-        : c
-    ));
-
-    await streamAssistantResponse(activeChat.id, baseMessages);
-  }, [activeChat, cerebrasKey, geminiKey, isStreaming, showTyping, streamAssistantResponse]);
-
   const isBusy = isStreaming || showTyping;
 
   if (view === "welcome") {
@@ -355,7 +332,6 @@ export default function Index() {
           messages={activeChat?.messages || []}
           isStreaming={isStreaming}
           showTyping={showTyping}
-          onRegenerate={handleRegenerate}
         />
         <ChatInput onSend={handleSend} disabled={isBusy} isBusy={isBusy} onStop={handleStop} />
       </div>

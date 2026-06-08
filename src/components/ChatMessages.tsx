@@ -7,7 +7,7 @@ import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { Check, Clipboard, Copy, RefreshCw } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import { motion } from "framer-motion";
 import pandaLogo from "@/assets/panda-logo.png";
 import { toast } from "sonner";
@@ -55,69 +55,7 @@ function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) 
   );
 }
 
-function MessageActions({
-  message,
-  canRegenerate,
-  onRegenerate,
-}: {
-  message: ChatMessage;
-  canRegenerate: boolean;
-  onRegenerate?: () => void;
-}) {
-  const [copied, setCopied] = useState<"text" | "prompt" | null>(null);
-
-  const copyMessage = async (mode: "text" | "prompt") => {
-    const content = mode === "prompt"
-      ? `Copy and paste ready prompt:\n\n${message.content.trim()}`
-      : message.content.trim();
-    if (!content) return;
-    if (await copyText(content, mode === "prompt" ? "Prompt copied" : "Message copied")) {
-      setCopied(mode);
-      window.setTimeout(() => setCopied(null), 1400);
-    }
-  };
-
-  return (
-    <div className="message-actions mt-2 flex flex-wrap items-center gap-1.5">
-      <button
-        type="button"
-        onClick={() => copyMessage("text")}
-        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border/70 bg-background/60 px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
-      >
-        {copied === "text" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-        Copy
-      </button>
-      <button
-        type="button"
-        onClick={() => copyMessage("prompt")}
-        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border/70 bg-background/60 px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
-      >
-        {copied === "prompt" ? <Check className="h-3.5 w-3.5" /> : <Clipboard className="h-3.5 w-3.5" />}
-        Prompt
-      </button>
-      {canRegenerate && (
-        <button
-          type="button"
-          onClick={onRegenerate}
-          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border/70 bg-background/60 px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-          Regenerate
-        </button>
-      )}
-    </div>
-  );
-}
-
-function MessageBubble({
-  message,
-  canRegenerate,
-  onRegenerate,
-}: {
-  message: ChatMessage;
-  canRegenerate: boolean;
-  onRegenerate?: () => void;
-}) {
+function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === "user";
 
   return (
@@ -127,12 +65,7 @@ function MessageBubble({
       transition={{ duration: 0.2 }}
       className={`message-row flex min-w-0 ${isUser ? "justify-end" : "justify-start"}`}
     >
-      <article className={`${isUser ? "max-w-[94%] sm:max-w-[82%] md:max-w-[72%] min-w-0 break-words chat-bubble-user shadow-sm" : "w-full min-w-0 break-words rounded-lg border border-border/50 bg-card/55 px-3.5 py-3 sm:px-4 sm:py-3.5 chat-bubble-ai shadow-sm"}`}>
-        {!isUser && (
-          <div className="mb-2 flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            <span>Panda AI</span>
-          </div>
-        )}
+      <article className={`${isUser ? "max-w-[94%] sm:max-w-[82%] md:max-w-[72%] min-w-0 break-words chat-bubble-user shadow-sm" : "w-full min-w-0 break-words px-1 py-1 sm:px-2 chat-bubble-ai"}`}>
         {message.images && message.images.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2">
             {message.images.map((img, i) => (
@@ -179,7 +112,6 @@ function MessageBubble({
             </ReactMarkdown>
           </div>
         )}
-        <MessageActions message={message} canRegenerate={canRegenerate} onRegenerate={onRegenerate} />
       </article>
     </motion.div>
   );
@@ -187,7 +119,7 @@ function MessageBubble({
 
 function TypingIndicator() {
   return (
-    <div className="w-full rounded-lg border border-border/50 bg-card/55 px-4 py-4">
+    <div className="w-full px-2 py-4">
       <div className="chat-bubble-ai flex items-center gap-1.5">
         <div className="typing-dot w-2 h-2 rounded-full bg-accent" />
         <div className="typing-dot w-2 h-2 rounded-full bg-accent" />
@@ -201,10 +133,9 @@ interface ChatMessagesProps {
   messages: ChatMessage[];
   isStreaming: boolean;
   showTyping: boolean;
-  onRegenerate?: () => void;
 }
 
-export function ChatMessages({ messages, isStreaming, showTyping, onRegenerate }: ChatMessagesProps) {
+export function ChatMessages({ messages, isStreaming, showTyping }: ChatMessagesProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -259,15 +190,8 @@ export function ChatMessages({ messages, isStreaming, showTyping, onRegenerate }
 
   return (
     <div className="flex-1 min-h-0 overflow-y-auto px-2.5 sm:px-4 md:px-6 py-3 sm:py-4 bg-background">
-      <div className="mx-auto w-full max-w-4xl space-y-3 sm:space-y-4 pb-2">
-        {messages.map((m, index) => (
-          <MessageBubble
-            key={m.id}
-            message={m}
-            canRegenerate={!isStreaming && m.role === "assistant" && index === messages.length - 1}
-            onRegenerate={onRegenerate}
-          />
-        ))}
+      <div className="mx-auto w-full max-w-5xl space-y-3 sm:space-y-4 pb-2">
+        {messages.map(m => <MessageBubble key={m.id} message={m} />)}
         {showTyping && !isStreaming && <TypingIndicator />}
         <div ref={bottomRef} />
       </div>
